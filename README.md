@@ -1,6 +1,6 @@
 # Jagadish-airline-disruption-agents
 
-**Recruiter summary:** Airline disruptions cascade fast — one cancelled flight strands 42 passengers, ticks crew duty clocks toward illegality, and loses bags. This repo is an end-to-end disruption-operations agent: it answers open-ended ops questions over synthetic telemetry, enforces crew-legality rules with cited violations, ranks rebooking options with transparent scoring, and stops every safety-critical action at a human confirmation gate. Proof: 81 regression checks green; the demo finds 12 disrupted flights, 2 illegal crew pairings, and a 42-passenger rebooking backlog in one query.
+**Recruiter summary:** Airline disruptions cascade fast — one cancelled flight strands 42 passengers, ticks crew duty clocks toward illegality, and loses bags. This repo is an end-to-end disruption-operations agent: it answers open-ended ops questions over synthetic telemetry, enforces crew-legality rules with cited violations, ranks rebooking options with transparent scoring, and stops every safety-critical action at a human confirmation gate. Proof: 82 regression checks green; the demo finds 12 disrupted flights, 2 illegal crew pairings, and a 42-passenger rebooking backlog in one query.
 
 ## Problem → approach → outcome
 
@@ -80,7 +80,7 @@ Test count (also checked by CI):
 
 <!-- run: python scripts/count_tests.py -->
 ```text
-81 tests collected
+82 tests collected
 ```
 <!-- /run -->
 
@@ -105,7 +105,7 @@ denied.
 
 | Item | Status |
 |---|---|
-| Telemetry, 5 text-to-SQL intents, gateway | Built, 81 checks green |
+| Telemetry, 5 text-to-SQL intents, gateway | Built, 82 checks green |
 | CI on every push: ruff, tests, docs drift check, hashed brand check, gitleaks; CodeQL; Dependabot | Built |
 | Crew-legality engine (4 rules) | Built, tested incl. boundary values |
 | Rebooking optimizer (4 recovery options) | Built, tested incl. cabin-downgrade penalty |
@@ -125,7 +125,7 @@ denied.
 ## Run it
 
 ```bash
-python -m pytest tests/ -q          # 81 checks
+python -m pytest tests/ -q          # 82 checks
 python scripts/count_tests.py       # prints the real total
 pip install streamlit && streamlit run demo/app.py
 ```

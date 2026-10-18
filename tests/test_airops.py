@@ -417,3 +417,16 @@ def test_pii_keeps_dates_and_redacts_parenthesised_phone():
     from airops.pii import scrub
     out, n = scrub("MA-207 on 2026-10-18 was cancelled; call (555) 123-4567")
     assert "2026-10-18" in out and "[PHONE]" in out and "(" not in out.split("call")[1] and n == 1
+
+
+# ---------- CodeQL fix (grokbot-portfolio, 2026-10-18) ----------
+def test_pax_after_rebook_linear_parse():
+    import time
+
+    from airops.orchestrator import _pax_after_rebook
+    assert _pax_after_rebook("Please rebook passenger pax-m207-03 now") == "PAX-M207-03"
+    assert _pax_after_rebook("PAX-1 asked: rebook me") is None
+    assert _pax_after_rebook("what is the backlog") is None
+    t = time.perf_counter()
+    _pax_after_rebook("rebook " * 50_000)
+    assert time.perf_counter() - t < 1.0

@@ -14,6 +14,16 @@ import sqlite3
 from . import crewlegality, rebooking, sop_rag, text2sql
 from .views import create_views, run_query
 
+_PAX_RE = re.compile(r"PAX[-\w]+", re.I)
+
+
+def _pax_after_rebook(question: str) -> str | None:
+    """First PAX id after the word 'rebook ' (linear; replaces a lazy .*? regex)."""
+    at = question.lower().find("rebook ")
+    if at == -1:
+        return None
+    m = _PAX_RE.search(question, at + len("rebook "))
+    return m.group(0).upper() if m else None
 
 class Orchestrator:
     def __init__(self, conn: sqlite3.Connection):
@@ -48,8 +58,7 @@ class Orchestrator:
         return {"illegal_pairings": illegal, "checked": len(rows)}
 
     def _rebook_answer(self, question: str) -> dict:
-        m = re.search(r"rebook .*?(PAX[-\w]+)", question, re.I)
-        pax_id = m.group(1).upper() if m else "PAX-M207-00"
+        pax_id = _pax_after_rebook(question) or "PAX-M207-00"
         row = self.conn.execute(
             "SELECT flight_no, final_dest, cabin FROM passengers WHERE pax_id = ?",
             (pax_id,)).fetchone()
