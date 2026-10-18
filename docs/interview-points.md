@@ -17,6 +17,6 @@
 - **Failure modes I've handled:** intent-ordering collisions (specific
   intents first), self-correction retry then explicit escalation, live-feed
   gap instead of hallucinated weather.
-- **Numbers (synthetic, seed 42):** 65 regression checks green; demo shows
+- **Numbers (synthetic, seed 42):** 81 regression checks green; demo shows
   12 disrupted flights (CREW 6, WX 3, ATC 2, MX 1), 2 illegal pairings,
   42-passenger rebooking backlog.

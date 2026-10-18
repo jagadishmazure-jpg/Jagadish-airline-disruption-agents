@@ -1,6 +1,6 @@
 # Jagadish-airline-disruption-agents
 
-**Recruiter summary:** Airline disruptions cascade fast — one cancelled flight strands 42 passengers, ticks crew duty clocks toward illegality, and loses bags. This repo is an end-to-end disruption-operations agent: it answers open-ended ops questions over synthetic telemetry, enforces crew-legality rules with cited violations, ranks rebooking options with transparent scoring, and stops every safety-critical action at a human confirmation gate. Proof: 65 regression checks green; the demo finds 12 disrupted flights, 2 illegal crew pairings, and a 42-passenger rebooking backlog in one query.
+**Recruiter summary:** Airline disruptions cascade fast — one cancelled flight strands 42 passengers, ticks crew duty clocks toward illegality, and loses bags. This repo is an end-to-end disruption-operations agent: it answers open-ended ops questions over synthetic telemetry, enforces crew-legality rules with cited violations, ranks rebooking options with transparent scoring, and stops every safety-critical action at a human confirmation gate. Proof: 81 regression checks green; the demo finds 12 disrupted flights, 2 illegal crew pairings, and a 42-passenger rebooking backlog in one query.
 
 ## Problem → approach → outcome
 
@@ -80,15 +80,32 @@ Test count (also checked by CI):
 
 <!-- run: python scripts/count_tests.py -->
 ```text
-65 tests collected
+81 tests collected
 ```
 <!-- /run -->
+
+### Authorizer template sync (2026-10-18)
+
+The SQLite authorizer was updated to the shared strict, view-aware version.
+A base-table read is allowed only when SQLite reports it on behalf of one of
+the allowed views (the authorizer's view-name argument). A read with no view
+name is denied. `sqlite_master` is always denied, even if listed, and so is
+`load_extension`. The old version falsely denied a self-join of `v_crew_status`; a regression test covers it.
+`tests/test_authorizer_sync.py` drives the authorizer directly, independent
+of the text check. It covers comma joins and comment-obfuscated joins with a
+base table, every view, and view self-joins.
+
+Known residual: a read that uses no columns of a table behind a view is
+allowed, because SQLite reports the unused side of a view self-join the same
+way. So `SELECT count(*) FROM <that table>` or `EXISTS (SELECT 1 FROM ...)`
+can still reveal a row count, but no column data. Any column reference is
+denied.
 
 ## Built / Written-not-run / Planned
 
 | Item | Status |
 |---|---|
-| Telemetry, 5 text-to-SQL intents, gateway | Built, 65 checks green |
+| Telemetry, 5 text-to-SQL intents, gateway | Built, 81 checks green |
 | CI on every push: ruff, tests, docs drift check, hashed brand check, gitleaks; CodeQL; Dependabot | Built |
 | Crew-legality engine (4 rules) | Built, tested incl. boundary values |
 | Rebooking optimizer (4 recovery options) | Built, tested incl. cabin-downgrade penalty |
@@ -108,7 +125,7 @@ Test count (also checked by CI):
 ## Run it
 
 ```bash
-python -m pytest tests/ -q          # 65 checks
+python -m pytest tests/ -q          # 81 checks
 python scripts/count_tests.py       # prints the real total
 pip install streamlit && streamlit run demo/app.py
 ```
