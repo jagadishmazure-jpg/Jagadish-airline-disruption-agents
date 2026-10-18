@@ -42,7 +42,9 @@ class Orchestrator:
 
     def _legality_answer(self) -> dict:
         rows = run_query(self.conn, "SELECT * FROM v_crew_status")
-        illegal = crewlegality.find_illegal_pairings(rows)
+        delays = {r["flight_no"]: r["delay_minutes"] for r in run_query(
+            self.conn, "SELECT flight_no, delay_minutes FROM v_disrupted_flights")}
+        illegal = crewlegality.find_illegal_pairings(rows, delays)
         return {"illegal_pairings": illegal, "checked": len(rows)}
 
     def _rebook_answer(self, question: str) -> dict:

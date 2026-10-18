@@ -32,7 +32,7 @@ def rank_options(conn: sqlite3.Connection, origin: str, dest: str,
         (origin, dest),
     ).fetchall()
     ranked = []
-    for rec_id, o, d, dep_h, arr_h, avail, risk in rows:
+    for rec_id, _o, _d, dep_h, arr_h, avail, risk in rows:
         mismatch = _cabin_mismatch(pax_cabin, avail)
         score = W_DELAY * arr_h + W_CABIN * mismatch + W_CONN * risk
         ranked.append({

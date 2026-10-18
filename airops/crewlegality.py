@@ -9,6 +9,12 @@ Rules:
   CL-REST-10   minimum 10:00 hours rest between duty periods
   CL-FLIGHT-8  flight time within a duty period capped at 8:00 hours
   CL-CONSEC-6  no more than 6 consecutive duty days
+
+Disruption projection: a delay on the crew's assigned flight extends the
+duty period by the same number of minutes. ``find_illegal_pairings`` takes
+the delays of disrupted flights and checks CL-DUTY-14 against the projected
+duty time too, so a crew that is legal now but would bust 14:00 if they
+operate their delayed flight is flagged before the flight goes, not after.
 """
 
 from __future__ import annotations
@@ -46,11 +52,33 @@ def evaluate_crew(crew: dict) -> list[Violation]:
     return out
 
 
-def find_illegal_pairings(crew_rows: list[dict]) -> list[dict]:
-    """Return crew with violations, each citing the exact rules fired."""
+def projected_violations(crew: dict, delay_minutes: int) -> list[Violation]:
+    """CL-DUTY-14 checked against duty time *after* the assigned flight's delay.
+
+    Only reported when the crew is legal on current duty time, so one breach
+    is never counted twice.
+    """
+    rule_id, desc, limit, field, _comp = RULES[0]
+    current, projected = crew[field], crew[field] + max(0, delay_minutes or 0)
+    if current <= limit < projected:
+        return [Violation(rule_id, desc,
+                          f"projected {field}={projected} after a {delay_minutes} min delay "
+                          f"on {crew.get('assigned_flight')} exceeds limit {limit}")]
+    return []
+
+
+def find_illegal_pairings(crew_rows: list[dict],
+                          flight_delays: dict[str, int] | None = None) -> list[dict]:
+    """Return crew with violations, each citing the exact rules fired.
+
+    ``flight_delays`` maps flight_no -> delay_minutes for disrupted flights;
+    when given, delays are projected onto the assigned crew's duty time.
+    """
+    delays = flight_delays or {}
     illegal = []
     for row in crew_rows:
         violations = evaluate_crew(row)
+        violations += projected_violations(row, delays.get(row.get("assigned_flight"), 0))
         if violations:
             illegal.append({
                 "crew_id": row["crew_id"],

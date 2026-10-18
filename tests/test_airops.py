@@ -1,6 +1,5 @@
 """Regression checks for Jagadish-airline-disruption-agents (synthetic data)."""
 
-import sqlite3
 
 import pytest
 
@@ -394,3 +393,27 @@ def test_demo_ask_and_rebook():
 
 def test_demo_atc():
     assert demo_helpers.atc_demo("ORD")["ground_stop"] is True
+
+
+# ---------- review fixes (grokbot-portfolio, 2026-10-18) ----------
+
+def test_delay_projected_onto_duty_time():
+    crew = {"crew_id": "C-X", "role": "fo", "assigned_flight": "MA-310",
+            "duty_minutes": 700, "flight_minutes": 300, "rest_hours": 12.0, "consec_days": 2}
+    assert crewlegality.find_illegal_pairings([crew]) == []
+    hit = crewlegality.find_illegal_pairings([crew], {"MA-310": 165})
+    assert hit and hit[0]["violations"][0][0] == "CL-DUTY-14"
+    assert "projected duty_minutes=865" in hit[0]["violations"][0][2]
+
+
+def test_already_illegal_crew_not_double_counted():
+    crew = {"crew_id": "C-Y", "role": "captain", "assigned_flight": "MA-207",
+            "duty_minutes": 930, "flight_minutes": 430, "rest_hours": 12.0, "consec_days": 3}
+    hit = crewlegality.find_illegal_pairings([crew], {"MA-207": 60})
+    assert [v[0] for v in hit[0]["violations"]] == ["CL-DUTY-14"]
+
+
+def test_pii_keeps_dates_and_redacts_parenthesised_phone():
+    from airops.pii import scrub
+    out, n = scrub("MA-207 on 2026-10-18 was cancelled; call (555) 123-4567")
+    assert "2026-10-18" in out and "[PHONE]" in out and "(" not in out.split("call")[1] and n == 1

@@ -6,7 +6,7 @@
 | Prompt injection via SOP docs | RAG retriever | SOPs are local first-party files; retrieval is TF-IDF (no LLM); citations bound to file+section |
 | Unauthorized action (cancel flight) | Escalation tiers | T3/T4 + ALWAYS_GATED require human confirmation; gate timeout denies by default (no approver -> timeout) |
 | Audit tampering | AuditLog | SHA-256 hash chain; verify_chain() detects modification, drops, reordering |
-| PII leakage in feedback | feedback.py | pii.scrub() redacts email/phone/SSN before storage; redaction count recorded |
+| PII leakage in feedback | feedback.py | pii.scrub() redacts email/phone (incl. `(555) 123-4567`)/SSN before storage and keeps dates; redaction count recorded |
 | Hallucinated external data | weathersignal | LiveAtcSignal raises SignalGap when unconfigured; fake backend is labelled fake |
 | Illegal crew assignment | crewlegality | Engine blocks on cited rules; reassignment over duty limits is ALWAYS_GATED |
 

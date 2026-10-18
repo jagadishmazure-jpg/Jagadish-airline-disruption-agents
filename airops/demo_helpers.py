@@ -5,16 +5,18 @@ from __future__ import annotations
 from . import crewlegality, rebooking
 from .orchestrator import Orchestrator
 from .telemetry import get_conn
-from .views import run_query
+from .views import create_views, run_query
 from .weathersignal import FakeAtcSignal
 
 
 def disruption_summary() -> dict:
     conn = get_conn()
-    orch = Orchestrator(conn)
+    create_views(conn)
     by_cause = run_query(conn, "SELECT delay_code, COUNT(*) n FROM v_disrupted_flights GROUP BY delay_code")
+    delays = {r["flight_no"]: r["delay_minutes"] for r in run_query(
+        conn, "SELECT flight_no, delay_minutes FROM v_disrupted_flights")}
     illegal = crewlegality.find_illegal_pairings(
-        run_query(conn, "SELECT * FROM v_crew_status"))
+        run_query(conn, "SELECT * FROM v_crew_status"), delays)
     backlog = run_query(conn, "SELECT COUNT(*) n FROM v_rebooking_queue")
     return {
         "by_cause": by_cause,
