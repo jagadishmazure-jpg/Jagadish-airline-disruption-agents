@@ -71,7 +71,7 @@ def build_db(seed: int = SEED) -> sqlite3.Connection:
     # --- flights: 24 scheduled, mix of statuses ---
     flights = []
     n = 0
-    for i, (o, d) in enumerate(
+    for o, d in (
         [(a, b) for a in AIRPORTS for b in AIRPORTS if a != b][:24]
     ):
         n += 1

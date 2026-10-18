@@ -8,7 +8,7 @@ flowchart LR
     ORC --> LEG[Crew-legality engine\nCL-DUTY-14 etc.]
     ORC --> RBK[Rebooking optimizer\nranked itineraries]
     ORC --> ATC[ATC/weather signal\nfake or live, gap-safe]
-    T2S --> GW[SELECT-only gateway\nSEC-SELECT-01/02/03]
+    T2S --> GW[SELECT-only gateway\nSEC-SELECT-01..04<br/>+ SQLite authorizer]
     GW --> DB[(SQLite telemetry)]
     LEG --> DB
     RBK --> DB

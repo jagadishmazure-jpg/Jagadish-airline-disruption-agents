@@ -12,7 +12,7 @@ import re
 _PATTERNS = [
     (re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"), "[EMAIL]"),
     (re.compile(r"\b\d{3}-\d{2}-\d{4}\b"), "[SSN]"),
-    (re.compile(r"\+?\d[\d\s().-]{8,}\d"), "[PHONE]"),
+    (re.compile(r"(?<!\w)(?:\+?1[-.\s]?)?(?:\(\d{3}\)\s?|\d{3}[-.\s]?)\d{3}[-.\s]?\d{4}\b"), "[PHONE]"),
 ]
 
 

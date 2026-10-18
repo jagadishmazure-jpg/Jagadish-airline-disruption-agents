@@ -11,8 +11,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 try:
     import streamlit as st
-except ImportError:  # pragma: no cover
-    raise SystemExit("pip install streamlit, then rerun: streamlit run demo/app.py")
+except ImportError as exc:  # pragma: no cover
+    raise SystemExit("pip install streamlit, then rerun: streamlit run demo/app.py") from exc
 
 from airops import demo_helpers  # noqa: E402
 
